@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout">
+<head>
+    <title>Content page 1</title>
+    <script src="content-script.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#myInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#myTable tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+                $("#mybutton").click(function(){
+                let code =$(this).attr("data")
+                let name =$(this).attr("data2")
+                $("#editfrom").attr("action", "/update/"+code);
+                $("#name1").attr("value",name);
+                console.log(code)
+                console.log(name)
+            });
+            $("#myDeleteButton").click(function(){
+                let code_cli =$(this).attr("data")
+                let code_cpt =$(this).attr("data2")
+                console.log(code_cpt)
+                $("#codeInput").attr("value",code_cpt);
+            });
+        });
+    </script>
+</head>
+<body>
+<section layout:fragment="content">
+    <h1 class="mt-4">Comptes</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active" >/showClient/<span th:text="${client.nom_cli}"></span></li>
+    </ol>
+    <div class="container py-4">
+        <div class="p-5 mb-4 bg-light rounded-3">
+            <div class="container-fluid py-5">
+                <h1>Client <i class="fas fa-user-check"></i>: <span th:text="${client.nom_cli}"></span></h1>
+                <div >
+                    <nav class="sb-topnav navbar navbar-expand">
+                        <!-- Edit Client-->
+                        <button id="mybutton"
+                                th:data="${client.code_cli}"
+                                th:data2="${client.nom_cli}"
+                                class="btn btn-info"
+                                data-bs-toggle="modal"
+                                data-bs-target="#EditModal"><i class="fas fa-edit"></i> edit </button>
+                        <!-- Navbar-->
+                    </nav>
+                </div>
+                <h1>Comptes:</h1>
+                <nav class="sb-topnav navbar navbar-expand">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        Add Compte <i class="fas fa-plus-circle"></i>
+                    </button>
+                    <!-- Navbar Search-->
+                    <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                        <div class="input-group">
+                            <input class="form-control" id="myInput" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                        </div>
+                    </form>
+                    <!-- Navbar-->
+                </nav>
+                <table class="table" id="myTable">
+                    <thead>
+                    <tr>
+                        <th scope="col">Code Compte</th>
+                        <th scope="col">created by</th>
+                        <th scope="col">Date de creation</th>
+                        <th scope="col">Solde</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Details And Operations</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="compte : ${client.getComptes()}">
+                        <td scope="row" th:text="${compte.codeCompte}"></td>
+                        <td scope="row" th:text="${compte.employe.nomEmp}"></td>
+                        <td scope="row" th:text="${compte.dateCreation}"></td>
+                        <td scope="row" th:text="${compte.solde}"></td>
+                        <td scope="row" th:text="${compte.getDecriminatorValue()}"></td>
+                         <td><a  th:href="@{/consulterCompte(codeCompte=${compte.codeCompte})}" class="btn btn-warning"> <i class="fas fa-info-circle"></i> consulter </a></td>
+
+                        <td>
+                            <button
+                                    id="myDeleteButton"
+                                    type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#exampleModal1"
+                                    th:data="${client.code_cli}"
+                                    th:data2="${compte.codeCompte}"
+                            >
+                                <i class="fas fa-trash-alt"></i>
+                            </button></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+<!-- ADD Compte MODEL-->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add Compte</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/saveCompte}" method="post" class="needs-validation" novalidate>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Code Compte:</label>
+                                <input  class="form-control" id="exampleInputEmail1" placeholder="Code compte" name="codeCompte" required>
+                                <div class="valid-feedback">Valid.</div>
+                                <div class="invalid-feedback">Enter code client</div>
+                            </div>
+                            <div class="form-group">
+                                <label >Solde:</label>
+                                <input  class="form-control" type="number"  value="0" placeholder="Solde" name="solde">
+                                <div class="valid-feedback">Valid.</div>
+                                <div class="invalid-feedback">Enter un decouvert</div>
+                                <input  class="form-control" type="hidden"  th:value="${client.code_cli}"   name="client_id">
+                            </div>
+                            <div class="form-group">
+                                <label >Type:</label>
+                                <div>
+                                    <input type="radio" name="typeOperation" value="CC"
+                                           checked="checked"  onchange="
+                                   document.getElementById('forCE').style.display='none'
+                                   document.getElementById('forCC').style.display='block'
+                                    " required/>
+                                    <label>Compte Courant</label>
+                                    <input type="radio" name="typeOperation" value="CE"
+                                           onchange="
+                                   document.getElementById('forCC').style.display='none'
+                                   document.getElementById('forCE').style.display='block'
+                            " />
+                                    <label>Compte Epargne</label>
+
+                                </div>
+                            </div>
+
+                            <div id="forCC" >
+                                <label >Decouvert:</label>
+                                <input  class="form-control" type="number" th:value="0"  placeholder="decouvert" name="decouvert" required>
+                                <div class="valid-feedback">Valid.</div>
+                                <div class="invalid-feedback">Enter un decouvert</div>
+                            </div>
+                            <div id="forCE"  style="display:none">
+                                <label >Taux:</label>
+                                <input  class="form-control" type="number" th:value="0"  placeholder="Taux" name="taux" required>
+                                <div class="valid-feedback">Valid.</div>
+                                <div class="invalid-feedback">Enter un taux</div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!--  Modal Edit Client-->
+        <div class="modal fade" id="EditModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="EditModalLabel">Edit Client</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form  id="editfrom"
+                           method="post" class="needs-validation" novalidate>
+                        <div class="modal-body">
+                            <div class="form-group has-validation">
+                                <label >Name</label>
+                                <input type="text" class="form-control" name="name" value=""  id="name1"
+                                       aria-describedby="inputGroupPrepend" required placeholder="Name">
+                                <div class="invalid-feedback">
+                                    Please choose a name.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Edit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- delete Modal -->
+        <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel1">delete</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        are you sure !?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">cancel</button>
+                        <form th:action="@{/deleteCompte}" method="post" class="d-flex">
+                            <input  type="hidden" value=""  id="codeInput"  name="code">
+                            <input  type="hidden"  th:value="${client.code_cli}" name="codeclient">
+                            <button type="submit" class="btn btn-danger">I am sure</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Disable form submissions if there are invalid fields
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                // Get the forms we want to add validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</section>
+
+
+</body>
+</html>

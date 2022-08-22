@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="layout">
+<head>
+    <title>Content page 1</title>
+    <script src="content-script.js"></script>
+</head>
+<body>
+<section layout:fragment="content">
+    <h1 class="mt-4">Consulter Compte</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active" >/ConsulterCompte/<span th:text="${compte.codeCompte}"></span></li>
+    </ol>
+    <div class="container py-4">
+        <div class="row align-items-md-stretch" th:if="${compte}">
+            <div class="col-md-6">
+                <div class="h-100 p-5 text-white bg-dark rounded-3 ">
+
+                        <h2 class="mr-2">BONJOUR  <span  class="ml-3 badge bg-light text-dark" th:text="${compte.client.nom_cli}">
+                        </span> <i class="fas fa-user-check"></i> </h2>
+
+                    <div>
+                    <label>Compt:</label>
+                        <span class="badge bg-light text-dark"th:text="${compte.codeCompte}">Light</span>
+                    </div>
+                    <div>
+                        <label>Solde:</label>
+                        <span class="badge bg-light text-dark"th:text="${compte.solde}">Light</span>
+
+                    </div>
+                    <div>
+                        <label>Date de creation:</label>
+                        <span class="badge bg-light text-dark"th:text="${compte.dateCreation}">Light</span>
+                    </div>
+                    <div>
+                        <label>Type:</label>
+                        <span class="badge bg-light text-dark"th:text="${compte.getDecriminatorValue()}">Light</span>
+                    </div>
+                    <div th:if="${decouvert}">
+                        <label>Decouvert:</label>
+                                          <span class="badge bg-light text-dark"th:text="${decouvert}">Light</span>
+                    </div>
+                    <div th:if="${taux}">
+                        <label>Taux:</label>
+                        <span class="badge bg-light text-dark"th:text="${taux}">Light</span>
+                    </div>
+            </div>
+        </div>
+            <div class="col-md-6">
+                <div class="h-100 p-5 bg-light border rounded-3">
+                    <h2>Operations <i class="fas fa-cog"></i></h2>
+<!--                    <form th:action="@{/saveOperation}" method="post">-->
+
+<!--                        <div>-->
+<!--                            <label> Compte  : </label>-->
+<!--                            <input type="hidden" name="codeCompte" th:value="${compte.codeCompte}"/>-->
+<!--                        </div>-->
+<!--                        <div>-->
+<!--                            <input type="radio" name="typeOperation" value="VERS"-->
+<!--                                   checked="checked"  onchange=" document.getElementById('forVirement').style.display='none' " />-->
+<!--                            <label>Versement</label>-->
+<!--                            <input type="radio" name="typeOperation" value="RETR"-->
+<!--                                   onchange=" document.getElementById('forVirement').style.display='none' " />-->
+<!--                            <label>Retrait</label>-->
+<!--                            <input type="radio" name="typeOperation" value="VIR"-->
+<!--                                   onchange=" document.getElementById('forVirement').style.display='block' " />-->
+<!--                            <label>Virement</label>-->
+<!--                        </div>-->
+<!--                        <div id="forVirement"  style="display:none">-->
+<!--                            <label> Vers : </label>-->
+<!--                            <input type="text"  name="codeCompte2"  />-->
+<!--                        </div>-->
+<!--                        <div>-->
+<!--                            <label> Montant : </label>-->
+<!--                            <input type="text"  name="montant"  />-->
+<!--                        </div>-->
+<!--                        <button type="submit" class="btn btn-primary"> Save </button>-->
+<!--                    </form>-->
+                    <div class="d-flex justify-content-evenly align-items-center h-100">
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#VersementModal">
+                            Versement
+                        </button>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#RetraitModal">
+                            Retrait
+                        </button>
+                    </div>
+                    <div class=" col-auto">
+                        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#VirementModal">
+                            Virement
+                        </button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12 mt-2">
+                <div class="h-100 p-5 bg-light border rounded-3">
+                    <h2> Liste Operations </h2>
+                    <div class="panel panel-primary"  th:if="${compte}">
+                        <div class="panel-body">
+                            <table class="table table-striped">
+                                <tr>
+                                    <th>Numéro</th><th>Type</th><th>Date</th><th>Montant</th>
+                                </tr>
+                                <tr th:each="o:${listOperations}">
+                                    <td th:text="${o.numero}"></td>
+                                    <td th:text="${o.getDecriminatorValue()}"></td>
+                                    <td th:text="${o.dateOperation}"></td>
+                                    <td th:text="${o.montant}"></td>
+                                </tr>
+                            </table>
+                            <nav aria-label="Page navigation example">
+                                <ul class="pagination">
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                    <li class="page-item" th:each="p,status:${pages}">
+                                        <a class="page-link" th:href="@{/consulterCompte(codeCompte=${compte.codeCompte},page=${status.index})}" th:text="${status.index}"></a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                            <div class="container">
+                                <ul class="nav nav-pills">
+                                    <li th:each="p,status:${pages}">
+                                        <a th:href="@{/consulterCompte(codeCompte=${compte.codeCompte},page=${status.index})}" th:text="${status.index}"></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+        </div>
+        <div class="modal fade " id="VersementModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Versement</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-header text-center">Verser</div>
+                            <div class="card-body">
+                                <form th:action="@{/saveOperation}" method="post"  class="needs-validation" novalidate>
+                                    <input type="hidden" class="form-control" th:value="VERS" name="typeOperation">
+
+                                    <input type="text" class="form-control" th:value="${compte.codeCompte}" name="codeCompte" id="codeCompte" hidden>
+                                    <div class="form-group has-validation">
+                                    <label class="mt-3">Montant</label>
+                                    <input type="text" class="form-control" required  name="montant" id="montant">
+                                    </div>
+                                    <div class="form-group has-validation">
+                                    <label class="mt-3">Employé</label>
+                                    <select name="codeEmp" class="form-select mt-4">
+                                        <option
+                                                th:each="e:${employes}"
+                                                th:value="${e.codeEmp}"
+                                                th:text="${e.nomEmp}">
+                                        </option>
+                                    </select>
+                                        <div class="form-group has-validation">
+                                    <div class="text-center">
+                                        <input type="submit" class="btn btn-dark mt-5" value="Verser">
+                                    </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade " id="RetraitModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Retrait</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-header text-center">Retirer</div>
+                            <div class="card-body">
+                                <form th:action="@{/saveOperation}" method="post" class="needs-validation" novalidate>
+                                    <input type="hidden" class="form-control" th:value="RET" name="typeOperation">
+                                    <input type="text" class="form-control" th:value="${compte.codeCompte}" name="codeCompte" hidden>
+                                    <div class="form-group has-validation">
+                                    <label class="mt-3">Montant</label>
+                                    <input type="text" class="form-control" required  name="montant" >
+                                    </div>
+                                    <div class="form-group has-validation">
+                                    <label class="mt-6">Employé</label>
+                                    <select name="codeEmp" class="form-select mt-4">
+                                        <option
+                                                th:each="e:${employes}"
+                                                th:value="${e.codeEmp}"
+                                                th:text="${e.nomEmp}">
+                                        </option>
+                                    </select>
+                                    </div>
+                                    <div class="text-center">
+                                        <input type="submit" class="btn btn-dark mt-5" value="Retirer">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade " id="VirementModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Virement</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="card">
+                            <div class="card-header text-center">Virer</div>
+                            <div class="card-body">
+                                <form th:action="@{/saveOperation}" method="post" class="needs-validation" novalidate>
+                                    <input type="hidden" class="form-control" th:value="VER" name="typeOperation">
+                                    <input type="text" class="form-control" th:value="${compte.codeCompte}" name="codeCompte" hidden>
+                                    <div class="form-group has-validation">
+                                    <label class="mt-3">Bénificière</label>
+                                    <select required name="codeCompte2" class="form-select mt-4">
+                                        <option th:if="${c.codeCompte != compte.codeCompte}"
+                                                th:each="c:${comptes}"
+                                                th:value="${c.codeCompte}"
+                                                th:text="${c.codeCompte}">
+                                        </option>
+                                    </select>
+                                    </div>
+                                    <div class="form-group has-validation">
+                                    <label class="mt-3">Montant</label>
+                                    <input type="text" class="form-control"  required name="montant" >
+                                    </div>
+                                    <div class="form-group has-validation">
+                                    <label class="mt-3">Employé</label>
+                                    <select name="codeEmp" class="form-select mt-4">
+                                        <option
+                                                th:each="e:${employes}"
+                                                th:value="${e.codeEmp}"
+                                                th:text="${e.nomEmp}">
+                                        </option>
+                                    </select>
+                                    </div>
+                                    <div class="text-center">
+                                        <input type="submit" class="btn btn-dark mt-5" value="Virer">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+        // Disable form submissions if there are invalid fields
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                // Get the forms we want to add validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</section>
+
+</body>
+</html>

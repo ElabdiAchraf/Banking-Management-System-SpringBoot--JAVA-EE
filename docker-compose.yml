@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  db:
+    image: mysql
+    container_name: sql3
+    ports:
+      - 9002:3306
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=achraf
+

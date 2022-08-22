@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html
+        xmlns:th="http://www.thymeleaf.org"
+        xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="/layout">
+<head>
+    <title>Content page 1</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        (function () {
+            'use strict'
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        $(document).ready(function(){
+            $("#myInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#myTable tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+            $("#mybutton").click(function(){
+                let code =$(this).attr("data")
+                let name =$(this).attr("data2")
+                $("#editfrom").attr("action", "/update/"+code);
+                $("#name1").attr("value",name);
+                console.log(code)
+                console.log(name)
+            });
+        });
+
+    </script>
+</head>
+<body>
+<section layout:fragment="content">
+    <h1 class="mt-4">Clients List</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">/clients</li>
+    </ol>
+    <div class="container py-4">
+        <div class="p-5 mb-4 bg-light rounded-3">
+            <div class="container-fluid py-5">
+                <div >
+                    <nav class="sb-topnav navbar navbar-expand">
+                        <!-- Edit Client-->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            Add client <i class="fas fa-plus-circle"></i>
+                        </button>
+                        <!-- Navbar Search-->
+                        <form class="d-none d-md-inline-block form-inline ms-auto me-0 me-md-3 my-2 my-md-0">
+                            <div class="input-group">
+                                <input class="form-control" id="myInput" type="text" placeholder="Search for..." aria-label="Search for..." aria-describedby="btnNavbarSearch" />
+                            </div>
+                        </form>
+                        <!-- Navbar-->
+                    </nav>
+                </div>
+                <table class="table" id="myTable">
+                    <thead>
+                    <tr>
+                        <th scope="col">id</th>
+                        <th scope="col">name</th>
+                        <th scope="col">Details And Operations</th>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="client : ${clients}">
+                        <th scope="row" th:text="${client.code_cli}">1</th>
+                        <td th:text="${client.nom_cli}"></td>
+                        <td><a class="btn btn-success" th:href="@{/showClient/{id}(id=${client.code_cli})}"><i class="fas fa-info-circle"></i></a></td>
+                        <td>
+                            <a id="mybutton"
+                               th:data="${client.code_cli}"
+                               th:data2="${client.nom_cli}"
+                               class="btn btn-info"
+                               data-bs-toggle="modal"
+                               data-bs-target="#EditModal"
+                            >
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                        <td><a class="btn btn-danger" th:href="@{/delete/{id}(id=${client.code_cli})}"><i class="fas fa-trash-alt"></i></a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- Modal Add -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Add Client</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form th:action="@{/saveClient}" method="post" class=" needs-validation" novalidate>
+                        <div class="modal-body">
+                                <div class="form-group has-validation">
+                                    <label for="exampleInputEmail1">Name:</label>
+                                    <input  class="form-control" id="exampleInputEmail1" placeholder="Name" name="name" aria-describedby="inputGroupPrepend" required>
+                                    <div class="invalid-feedback">
+                                        Please choose a name.
+                                    </div>
+                                </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Modal Edit-->
+            <div class="modal fade" id="EditModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="EditModalLabel">Edit Client</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form  id="editfrom"
+                              method="post" class="needs-validation" novalidate>
+                            <div class="modal-body">
+                                <div class="form-group has-validation">
+                                    <label >Name</label>
+                                    <input type="text" class="form-control" name="name" value=""  id="name1"
+                                           aria-describedby="inputGroupPrepend" required placeholder="Name">
+                                    <div class="invalid-feedback">
+                                        Please choose a name.
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-primary">Edit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Disable form submissions if there are invalid fields
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                // Get the forms we want to add validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</section>
+
+
+
+</body>
+<script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+
+</script>
+</html>

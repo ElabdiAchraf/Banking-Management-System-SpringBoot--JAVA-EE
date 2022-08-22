@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="/layout"
+>
+<head>
+    <meta charset="UTF-8">
+    <title>Groupes</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <h1 class="mt-4">Groupes</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active" >/groups</li>
+    </ol>
+    <div class="p-5 mb-4 bg-light rounded-3">
+        <div class="container-fluid py-5">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Add Group <i class="fas fa-plus-circle"></i>
+            </button>
+    </div>
+    <div class="card">
+        <div class="card-header text-center">Liste des Groupes</div>
+        <div class="card-body">
+            <table class="table">
+                <tr>
+                    <th>Code Groupe</th> <th>Nom Groupe</th> <th>Supprimer</th>
+                </tr>
+                <tr th:each="g:${groupes}">
+                    <td th:text="${g.codeGrp}"></td>
+                    <td th:text="${g.nomGrp}"></td>
+                    <td>
+                        <a class="btn btn-danger" th:href="@{deleteGroupe(id=${g.codeGrp})}"><i class="fas fa-trash-alt"></i></a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add Client</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form th:action="@{/saveGroupe}" th:object="${groupe}" method="post" class=" needs-validation" novalidate>
+                        <div class="modal-body">
+                            <div class="form-group has-validation">
+                                <label >Name:</label>
+                                <input type="text" required  class="form-control col-auto" name="nomGrp" th:field="*{nomGrp}" id="nomGroupe">
+                                <div class="invalid-feedback">
+                                    Please choose a name.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Add</button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+</div>
+    <script>
+        // Disable form submissions if there are invalid fields
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                // Get the forms we want to add validation styles to
+                var forms = document.getElementsByClassName('needs-validation');
+                // Loop over them and prevent submission
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</section>
+</body>
+<footer th:insert="~{footer}"></footer>
+</html>
