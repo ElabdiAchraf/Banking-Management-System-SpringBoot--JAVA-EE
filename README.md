@@ -42,6 +42,7 @@ A bank account can be a current account or a savings account.
 - Spring Boot, Spring Data JPA, Spring Security
 - View (UI) : Thymeleaf, JavaScript, Bootstrap3
 - SGBD : MySQL
+- Docker and Docker compose
 # Demo
 ![image](https://user-images.githubusercontent.com/75706371/186046230-4012d13d-c45c-4e63-945e-a02bceeb077c.png)
 ![image](https://user-images.githubusercontent.com/75706371/186046311-59a9602f-39f2-42ba-b3d1-587457b4d0e9.png)
